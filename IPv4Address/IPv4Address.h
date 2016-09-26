@@ -23,6 +23,7 @@ class IPv4Address {
         bool lessThan(const IPv4Address& address) const;
         bool greaterThan(const IPv4Address& address) const;
         bool equals(const IPv4Address& address) const;
+        bool operator==(const IPv4Address& address);
 
         std::string toString() const;
         uint32_t toInt() const;

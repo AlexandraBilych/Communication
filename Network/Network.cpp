@@ -132,6 +132,9 @@ bool Network::isPublic() const
     return true;
 }
 
+bool Network::operator==(const Network& network) {
+    return address == network.getAddress() && maskLength == network.getMaskLength();
+}
 
 
 std::string Network::toString() const

@@ -1,10 +1,13 @@
+#ifndef NETWORK_H
+#define NETWORK_H
+
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "../IPv4Address/IPv4Address.h"
-#include "InvalidMaskLengthException.h"
+#include "IPv4Address.h"
 
+class InvalidMaskLengthException {};
 
 class Network {
     private:
@@ -33,6 +36,9 @@ class Network {
         bool isPublic() const;
 
         std::string toString() const;
+        bool operator==(const Network& network);
 };
 
 std::ostream& operator<<(std::ostream& out, const Network& net);
+
+#endif

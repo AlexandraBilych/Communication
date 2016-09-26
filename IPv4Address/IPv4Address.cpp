@@ -80,6 +80,9 @@ bool IPv4Address::equals(const IPv4Address& address) const
     return uint32_ipAdress == address.uint32_ipAdress;
 }
 
+bool IPv4Address::operator==(const IPv4Address& address) {
+    return equals(address);
+}
 
 std::string IPv4Address::toString() const
 {
@@ -90,7 +93,6 @@ uint32_t IPv4Address::toInt() const
 {
     return uint32_ipAdress;
 }
-
 
 std::ostream& operator<<(std::ostream& out, const IPv4Address& ip) {
     out << ip.toInt();
