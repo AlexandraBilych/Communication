@@ -13,22 +13,19 @@
 #define NET192_168_255_255 0xC0A8FFFF
 
 
-std::string Network::maskToString() const
-{
+std::string Network::maskToString() const {
     char str[15];
     uint32_t mask = MAX_MASK;
 
     mask <<= (32 - maskLength);
-    sprintf(str,"%u.%u.%u.%u", (MAX_BYTE & mask>>24),(MAX_BYTE & (mask>>16)),(MAX_BYTE & (mask>>8)),(MAX_BYTE & mask));
+    sprintf(str,"%u.%u.%u.%u", (MAX_BYTE & (mask >> 24)), (MAX_BYTE & (mask >> 16)), (MAX_BYTE & (mask >> 8)), (MAX_BYTE & mask));
 
     return str;
 }
 
 
-Network::Network(const IPv4Address& address, int maskLength)
-{
-    if ( maskLength < 0 || maskLength > 32 )
-    {
+Network::Network(const IPv4Address& address, int maskLength) {
+    if ( maskLength < 0 || maskLength > 32 ) {
         throw InvalidMaskLengthException();
     }
 
@@ -39,20 +36,21 @@ Network::Network(const IPv4Address& address, int maskLength)
 }
 
 
-bool Network::contains(const IPv4Address& address) const
-{
-    return address.greaterThan(this->address) && address.lessThan(getBroadcastAddress());
+bool Network::contains(const IPv4Address& address) const {
+    return address <= this->address && address >= getBroadcastAddress();
 }
 
 
-IPv4Address Network::getAddress() const
-{
+IPv4Address Network::getAddress() const {
     return address;
 }
 
 
-IPv4Address Network::getBroadcastAddress() const
-{
+IPv4Address Network::getBroadcastAddress() const {
+    if ( maskLength == 32  ) {
+        return address;
+    }
+
     uint32_t LastHost = (1 << (32 - maskLength)) - 1;
     IPv4Address temp = IPv4Address(address.toInt() + LastHost);
 
@@ -60,15 +58,21 @@ IPv4Address Network::getBroadcastAddress() const
 }
 
 
-IPv4Address Network::getFirstUsableAddress() const
-{
+IPv4Address Network::getFirstUsableAddress() const {
+    if ( maskLength == 32  ) {
+        return address;
+    }
+
     IPv4Address temp = IPv4Address(address.toInt() + 1);
     return temp;
 }
 
 
-IPv4Address Network::getLastUsableAddress() const
-{
+IPv4Address Network::getLastUsableAddress() const {
+    if ( maskLength == 32  ) {
+        return address;
+    }
+
     uint32_t LastHost = (1 << (32 - maskLength)) - 2;
     IPv4Address temp = IPv4Address(address.toInt() + LastHost);
 
@@ -76,26 +80,22 @@ IPv4Address Network::getLastUsableAddress() const
 }
 
 
-long Network::getMask() const
-{
+long Network::getMask() const {
     return maskLength;
 }
 
 
-std::string Network::getMaskString() const
-{
+std::string Network::getMaskString() const {
     return string_mask;
 }
 
 
-int Network::getMaskLength() const
-{
+int Network::getMaskLength() const {
     return maskLength;
 }
 
 
-std::vector< Network > Network::getSubnets() const // produce two half-sized subnets
-{
+std::vector< Network > Network::getSubnets() const {
     uint32_t ipAddress = address.toInt();
 
     return {Network( IPv4Address(ipAddress), maskLength + 1),
@@ -103,29 +103,24 @@ std::vector< Network > Network::getSubnets() const // produce two half-sized sub
 }
 
 
-long Network::getTotalHosts() const // excluding network and broadcast
-{
+long Network::getTotalHosts() const {
     return (1 << (32 - maskLength)) - 2;
 }
 
 
-bool Network::isPublic() const
-{
+bool Network::isPublic() const {
     uint32_t ipAddress = address.toInt();
 
 
-    if ( ipAddress >= NET10_0_0_0 && ipAddress <= NET10_255_255_255 )
-    {
+    if ( ipAddress >= NET10_0_0_0 && ipAddress <= NET10_255_255_255 ) {
         return false;
     }
 
-    if ( ipAddress >= NET172_16_0_0 && ipAddress <= NET172_31_255_255 )
-    {
+    if ( ipAddress >= NET172_16_0_0 && ipAddress <= NET172_31_255_255 ) {
         return false;
     }
 
-    if ( ipAddress >= NET192_168_0_0 && ipAddress <= NET192_168_255_255 )
-    {
+    if ( ipAddress >= NET192_168_0_0 && ipAddress <= NET192_168_255_255 ) {
         return false;
     }
 
@@ -137,7 +132,6 @@ bool Network::operator==(const Network& network) {
 }
 
 
-std::string Network::toString() const
-{
+std::string Network::toString() const {
     return string_network;
 }

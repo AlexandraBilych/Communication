@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "IPv4Address.h"
+#include "../IPv4Address/IPv4Address.h"
 
 class InvalidMaskLengthException {};
 

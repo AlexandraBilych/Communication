@@ -6,6 +6,7 @@
 #include <sstream>
 
 class IllegalArgumentException {};
+class NullAddressException {};
 
 class IPv4Address {
     private:
@@ -16,14 +17,19 @@ class IPv4Address {
         uint32_t stringToInt(const std::string& address) const;
 
     public:
-        IPv4Address() {};
+        IPv4Address();
         IPv4Address(const std::string& address);
         IPv4Address(long address);
+
+        bool operator==(const IPv4Address& address);
+        bool operator<(const IPv4Address& address);
+        bool operator>(const IPv4Address& address);
+        bool operator<=(const IPv4Address& address);
+        bool operator>=(const IPv4Address& address);
 
         bool lessThan(const IPv4Address& address) const;
         bool greaterThan(const IPv4Address& address) const;
         bool equals(const IPv4Address& address) const;
-        bool operator==(const IPv4Address& address);
 
         std::string toString() const;
         uint32_t toInt() const;
