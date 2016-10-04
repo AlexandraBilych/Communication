@@ -21,11 +21,11 @@ class IPv4Address {
         IPv4Address(const std::string& address);
         IPv4Address(long address);
 
-        bool operator==(const IPv4Address& address);
-        bool operator<(const IPv4Address& address);
-        bool operator>(const IPv4Address& address);
-        bool operator<=(const IPv4Address& address);
-        bool operator>=(const IPv4Address& address);
+        bool operator==(const IPv4Address& address) const;
+        bool operator<(const IPv4Address& address) const;
+        bool operator>(const IPv4Address& address) const;
+        bool operator<=(const IPv4Address& address) const;
+        bool operator>=(const IPv4Address& address) const;
 
         bool lessThan(const IPv4Address& address) const;
         bool greaterThan(const IPv4Address& address) const;

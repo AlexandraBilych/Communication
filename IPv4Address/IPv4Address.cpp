@@ -61,43 +61,43 @@ IPv4Address::IPv4Address(long address) {
 }
 
 
-bool IPv4Address::operator==(const IPv4Address& address) {
+bool IPv4Address::operator==(const IPv4Address& address) const {
     return uint32_ipAdress == address.uint32_ipAdress;
 }
 
 
-bool IPv4Address::operator<(const IPv4Address& address) {
+bool IPv4Address::operator<(const IPv4Address& address) const {
     return uint32_ipAdress < address.uint32_ipAdress;
 }
 
 
-bool IPv4Address::operator>(const IPv4Address& address) {
+bool IPv4Address::operator>(const IPv4Address& address) const {
     return uint32_ipAdress > address.uint32_ipAdress;
 }
 
 
-bool IPv4Address::operator<=(const IPv4Address& address) {
+bool IPv4Address::operator<=(const IPv4Address& address) const {
     return uint32_ipAdress < address.uint32_ipAdress || uint32_ipAdress == address.uint32_ipAdress;
 }
 
 
-bool IPv4Address::operator>=(const IPv4Address& address) {
+bool IPv4Address::operator>=(const IPv4Address& address) const {
     return uint32_ipAdress > address.uint32_ipAdress || uint32_ipAdress == address.uint32_ipAdress;
 }
 
 
 bool IPv4Address::lessThan(const IPv4Address& address) const {
-    return uint32_ipAdress < address.uint32_ipAdress;
+    return *this < address;
 }
 
 
 bool IPv4Address::greaterThan(const IPv4Address& address) const {
-    return uint32_ipAdress > address.uint32_ipAdress;
+    return *this > address;
 }
 
 
 bool IPv4Address::equals(const IPv4Address& address) const {
-    return uint32_ipAdress == address.uint32_ipAdress;
+    return *this == address;
 }
 
 
