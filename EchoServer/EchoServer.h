@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
+#include <thread>
 
 #define DEFAULT_PORT 20007
 
@@ -14,14 +15,17 @@ class EchoServer {
     private:
         int port;
         bool isServerRunning;
-        int server_socket, newsockfd, n;
+        int serverSocket, newsockfd, n;
         struct sockaddr_in serv_addr, cli_addr;
-        socklen_t clilen;
-        char buffer[256];
+        std::thread server;
 
+        void ClientSocket(int clientSocket);
+        void ServerSocket();
     public:
         EchoServer() : EchoServer(DEFAULT_PORT) {};
         EchoServer(int port);
+
+        ~EchoServer();
 
         bool isRunning();
         int getPort();
