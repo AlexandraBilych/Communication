@@ -1,31 +1,33 @@
-#include "EchoServer.h"
+#include "Server.h"
 #include <vector>
 
+void Server::getSettingsFromConfig() {
+    port = 20006;
+    root_dir = "/var/www/localhost/";
+}
 
-EchoServer::EchoServer(int port) : port(port) {
+Server::Server() {
+    getSettingsFromConfig();
+
     isServerRunning = false;
     serverSocket = 0;
 }
 
-
-EchoServer::~EchoServer() {
+Server::~Server() {
     if ( serverSocket ) {
         close(serverSocket);
     }
 }
 
-
-bool EchoServer::isRunning() {
+bool Server::isRunning() {
     return isServerRunning;
 }
 
-
-int EchoServer::getPort() {
+int Server::getPort() {
     return port;
 }
 
-
-void EchoServer::ClientSocket(int clientSocket) {
+void Server::ClientSocket(int clientSocket) {
     char buffer[256];
 
     for ( ; isServerRunning; ) {
@@ -54,8 +56,7 @@ void EchoServer::ClientSocket(int clientSocket) {
     close(clientSocket);
 }
 
-
-void EchoServer::ServerSocket() {
+void Server::ServerSocket() {
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if ( serverSocket < 0 ) {
         std::cout << "ERROR opening socket" << std::endl;
@@ -83,22 +84,21 @@ void EchoServer::ServerSocket() {
             std::cout << "ERROR on accept" << std::endl;
         }
 
-        std::thread client(&EchoServer::ClientSocket, this, newsockfd);
+        std::thread client(&Server::ClientSocket, this, newsockfd);
         client.detach();
     }
 }
 
-void EchoServer::start() {
+void Server::start() {
     if ( !isServerRunning ) {
         isServerRunning = true;
 
-        server = std::thread(&EchoServer::ServerSocket, this);
+        server = std::thread(&Server::ServerSocket, this);
         server.detach();
     }
 }
 
-
-void EchoServer::stop() {
+void Server::stop() {
     if ( isServerRunning ) {
         close(serverSocket);
         isServerRunning = false;

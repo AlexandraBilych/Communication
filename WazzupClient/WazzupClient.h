@@ -6,21 +6,22 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include "IPv4Address.h"
 
 
 class WazzupClient {
     private:
         bool isConnect;
-        struct hostent *server;
-        int portno, sockfd;
+        int sockfd, port;
         struct sockaddr_in serv_addr;
+        IPv4Address ipAddress;
 
     public:
-        WazzupClient(char* ipAddress, int port);
+        WazzupClient(const IPv4Address& ipAddress, int port);
         ~WazzupClient() {};
 
         bool isConnected();
 
-        void connect();
-        void stop();
+        void run();
+        void disconnect();
 };

@@ -1,13 +1,12 @@
 #include <iostream>
 #include <unistd.h>
 #include <thread>
-#include "EchoServer.h"
+#include "Server.h"
 
 int main() {
-    EchoServer* server = new EchoServer();
+    Server* server = new Server();
 
     server->isRunning();      // false
-    std::cout << server->getPort() << std::endl;        // value of DEFAULT_PORT
     std::cout << server->isRunning() << std::endl;      // true
 
     server->start();

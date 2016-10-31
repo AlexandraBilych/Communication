@@ -1,27 +1,19 @@
 #include "WazzupClient.h"
 #include <stdio.h>
 
-WazzupClient::WazzupClient(char* ipAddress, int port) {
+WazzupClient::WazzupClient(const IPv4Address& ipAddress, int port) {
     isConnect = false;
-    portno = port;
+    this->ipAddress = ipAddress;
+    this->port = port;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
         std::cout << "ERROR opening socket" << std::endl;
 
-    server = gethostbyname(ipAddress);
-    if (server == NULL) {
-        std::cout << "ERROR, no such host" << std::endl;
-        exit(0);
-    }
-
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr,
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-
-    serv_addr.sin_port = htons(portno);
+    serv_addr.sin_addr.s_addr = htonl(ipAddress.toInt());
+    serv_addr.sin_port = htons(port);
 }
 
 
@@ -30,20 +22,38 @@ bool WazzupClient::isConnected() {
 }
 
 
-void WazzupClient::connect() {
+void WazzupClient::run() {
     if ( !isConnect ) {
+        int n;
+        char buffer[256];
+
         isConnect = true;
 
-        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-            printf("Please enter the message: ");
+        if ( connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0 ) {
+            std::cout << "ERROR connecting" << std::endl;
         }
 
+
+        std::cout << "Please enter the message: " << std::endl;
+        bzero(buffer, 256);
+        fgets(buffer, 255, stdin);
+
+        n = write(sockfd, buffer, strlen(buffer));
+        if ( n < 0 ) {
+             std::cout << "ERROR writing to socket" << std::endl;
+        }
+
+        for ( ; (n = read(sockfd, buffer, 255)) > 0; ) {
+            std::cout << buffer << std::endl;
+            bzero(buffer, 256);
+        }
     }
 }
 
 
-void WazzupClient::stop() {
+void WazzupClient::disconnect() {
     if ( isConnect ) {
         isConnect = false;
+        close(sockfd);
     }
 }

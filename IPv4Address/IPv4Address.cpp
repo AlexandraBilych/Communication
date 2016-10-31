@@ -1,4 +1,5 @@
 #include "IPv4Address.h"
+#include <iostream>
 
 
 std::string IPv4Address::intToString(uint32_t address) const {
@@ -19,6 +20,8 @@ uint32_t IPv4Address::stringToInt(const std::string& address) const {
 
     ss.str(address);
 
+    try{
+
     for ( uint32_t buffer; getline(ss, item, '.'); ) {
         buffer = std::stoi(item, nullptr);
         int_address |= (buffer << (4 - numberOfBytes) * 8);
@@ -28,6 +31,9 @@ uint32_t IPv4Address::stringToInt(const std::string& address) const {
         }
 
         numberOfBytes += 1;
+    }
+    } catch (...) {
+        std::cout << "Exception";
     }
 
     return int_address;
