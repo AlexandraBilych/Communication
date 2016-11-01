@@ -1,13 +1,29 @@
 #include "Server.h"
 #include <vector>
 
-void Server::getSettingsFromConfig() {
-    port = 20006;
-    root_dir = "/var/www/localhost/";
+std::map<std::string, std::string> Server::getSettingsFromConfig() {
+    std::ifstream file;
+    std::string key, value;
+
+    file.open("http.conf", std::ios::in);
+
+    std::map<std::string, std::string> map;
+    for ( ; file >> key >> value; ) {
+        map[key] = value;
+    }
+
+    file.close();
+
+    return map;
 }
 
 Server::Server() {
-    getSettingsFromConfig();
+    std::map<std::string, std::string> config;
+    config = getSettingsFromConfig();
+
+    port = stoi(config["port"]);
+    root_dir = config["root_dir"];
+    std::cout << port << "---" << root_dir << "\n";
 
     isServerRunning = false;
     serverSocket = 0;
@@ -27,8 +43,35 @@ int Server::getPort() {
     return port;
 }
 
+Request Server::parsingRequest(char clientRequest[]) {
+    Request result;
+    std::string buffer;
+
+    std::istringstream iss(clientRequest);
+    // iss >> result.method >> result.requestURI >> result.protocol ;
+    getline(iss, buffer);
+    std::cout << buffer << "\n";
+    getline(iss, buffer);
+    std::cout << buffer << "\n";
+
+    return result;
+}
+
+Responce Server::createResponce(Request clientRequest) {
+    Responce result;
+
+    if ( clientRequest.method != "GET" ) {
+
+    }
+    //iss >> result.host;
+
+    return result;
+}
+
 void Server::ClientSocket(int clientSocket) {
     char buffer[256];
+    Request request;
+    Responce responce;
 
     for ( ; isServerRunning; ) {
         bzero(buffer,256);
@@ -37,6 +80,14 @@ void Server::ClientSocket(int clientSocket) {
         if ( n < 0 ) {
             std::cout << "ERROR reading from socket" << std::endl;
         }
+
+        request = parsingRequest(buffer);
+        responce = createResponce(request);
+
+        // std::cout << request.method << "\n";
+        // std::cout << request.requestURI << "\n";
+        // std::cout << request.protocol << "\n";
+        // std::cout << request.host << "\n";
 
         if ( strcmp(buffer, "disconnect\r\n") == 0 || strcmp(buffer, "") == 0 ) {
             break;

@@ -2,6 +2,8 @@
 #define SERVER_H
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,6 +11,18 @@
 #include <string.h>
 #include <unistd.h>
 #include <thread>
+#include <map>
+
+struct Request {
+    std::string method;
+    std::string requestURI;
+    std::string protocol;
+    std::string host;
+};
+
+struct Responce {
+
+};
 
 class Server {
     private:
@@ -19,7 +33,9 @@ class Server {
         struct sockaddr_in serv_addr, cli_addr;
         std::thread server;
 
-        void getSettingsFromConfig();
+        std::map<std::string, std::string> getSettingsFromConfig();
+        Request parsingRequest(char clientRequest[]);
+        Responce createResponce(Request clientRequest);
 
         void ClientSocket(int clientSocket);
         void ServerSocket();
