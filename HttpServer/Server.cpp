@@ -1,6 +1,8 @@
 #include "Server.h"
 #include <vector>
 
+//GET \ HTTP\1.1
+
 std::map<std::string, std::string> Server::getSettingsFromConfig() {
     std::ifstream file;
     std::string key, value;
@@ -23,6 +25,7 @@ Server::Server() {
 
     port = stoi(config["port"]);
     root_dir = config["root_dir"];
+    root_dir.pop_back();
     std::cout << port << "---" << root_dir << "\n";
 
     isServerRunning = false;
@@ -43,18 +46,68 @@ int Server::getPort() {
     return port;
 }
 
-Request Server::parsingRequest(char clientRequest[]) {
-    Request result;
+std::string Server::parsingRequest(char clientRequest[]) {
+    Request request;
+    std::string responce;
     std::string buffer;
+    std::ifstream searchFile;
 
     std::istringstream iss(clientRequest);
-    // iss >> result.method >> result.requestURI >> result.protocol ;
-    getline(iss, buffer);
-    std::cout << buffer << "\n";
-    getline(iss, buffer);
-    std::cout << buffer << "\n";
 
-    return result;
+    iss >> request.method;
+    if ( request.method != "GET" ) {
+        std::cout << "405 Method Not Allowed" << std::endl;
+        responce = "405 Method Not Allowed";
+        return responce;
+    }
+
+    iss >> request.requestURI;
+    if ( request.requestURI == "/" ) {
+        searchFile.open(root_dir + request.requestURI + "index.html");
+    } else {
+        searchFile.open(root_dir + request.requestURI);
+    }
+
+    std::cout << (root_dir + request.requestURI) << std::endl;
+    std::cout << searchFile.good() << std::endl;
+
+    if ( !searchFile.good() ) {
+        std::cout << "404 /some-strange-url.notfound" << std::endl;
+        responce = "404 /some-strange-url.notfound";
+        return responce;
+    }
+
+    iss >> request.protocol;
+    if ( request.protocol != "HTTP/1.1" ) {
+        std::cout << "400 Bad request" << std::endl;
+        responce = "400 Bad request";
+        return responce;
+    }
+
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%a, %e %h %Y %H:%M:%S");
+
+    char buff[256];
+    snprintf(buff, sizeof(buff), "HTTP/1.1 200 OK\r\n\
+        Connection: close\r\n\
+        Content-Length: %d\r\n\
+        Content-Type: text/html; charset=UTF-8\r\n\
+        Date: %s GMT\r\n\r\n",\
+        (int)searchFile.tellg(), (ss.str()).c_str());
+    responce = buff;
+
+    std::cout << "200 " << request.requestURI << std::endl;
+    //std::cout << request.host << "\n";
+
+    // getline(iss, buffer);
+    // std::cout << buffer << "\n";
+    // getline(iss, buffer);
+    // std::cout << buffer << "\n";
+
+    return responce;
 }
 
 Responce Server::createResponce(Request clientRequest) {
@@ -70,8 +123,7 @@ Responce Server::createResponce(Request clientRequest) {
 
 void Server::ClientSocket(int clientSocket) {
     char buffer[256];
-    Request request;
-    Responce responce;
+    std::string responce;
 
     for ( ; isServerRunning; ) {
         bzero(buffer,256);
@@ -81,24 +133,9 @@ void Server::ClientSocket(int clientSocket) {
             std::cout << "ERROR reading from socket" << std::endl;
         }
 
-        request = parsingRequest(buffer);
-        responce = createResponce(request);
+        responce = parsingRequest(buffer);
 
-        // std::cout << request.method << "\n";
-        // std::cout << request.requestURI << "\n";
-        // std::cout << request.protocol << "\n";
-        // std::cout << request.host << "\n";
-
-        if ( strcmp(buffer, "disconnect\r\n") == 0 || strcmp(buffer, "") == 0 ) {
-            break;
-        }
-
-        if ( strcmp(buffer, "stop\r\n") == 0 ) {
-            stop();
-            break;
-        }
-
-        n = write(clientSocket, buffer, 255);
+        n = write(clientSocket, responce.c_str(), 255);
         if ( n < 0 ) {
             std::cout << "ERROR writing to socket" << std::endl;
         }

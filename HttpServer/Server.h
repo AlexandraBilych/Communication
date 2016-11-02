@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <thread>
 #include <map>
+#include <chrono>
+#include <iomanip>
 
 struct Request {
     std::string method;
@@ -34,7 +36,7 @@ class Server {
         std::thread server;
 
         std::map<std::string, std::string> getSettingsFromConfig();
-        Request parsingRequest(char clientRequest[]);
+        std::string parsingRequest(char clientRequest[]);
         Responce createResponce(Request clientRequest);
 
         void ClientSocket(int clientSocket);
